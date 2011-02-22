@@ -80,7 +80,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
 
     old_windowed_buf=zeros((2,windowsize))
     hinv_sqrt2=(1+sqrt(0.5))*0.5
-    hinv_buf=(hinv_sqrt2-(1.0-hinv_sqrt2)*cos(arange(half_windowsize,dtype='float')*2.0*pi/half_windowsize))/hinv_sqrt2
+    hinv_buf=2.0*(hinv_sqrt2-(1.0-hinv_sqrt2)*cos(arange(half_windowsize,dtype='float')*2.0*pi/half_windowsize))/hinv_sqrt2
 
     while True:
         #get the windowed buffer
@@ -127,7 +127,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
     outfile.close()
 
 ########################################
-print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110219"
+print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110222"
 print "by Nasca Octavian PAUL, Targu Mures, Romania\n"
 parser = OptionParser(usage="usage: %prog [options] input_wav output_wav")
 parser.add_option("-s", "--stretch", dest="stretch",help="stretch amount (1.0 = no stretch)",type="float",default=8.0)
