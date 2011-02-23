@@ -129,7 +129,6 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
                 freqs_scaled=zeros(num_bins_scaled_freq)
 
 
-
             #process transients
             m=2.0*mean(freqs_scaled-old_freqs_scaled)/(mean(abs(old_freqs_scaled))+1e-3)
             if m<0.0:
@@ -201,7 +200,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
     
 
 ########################################
-print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110222"
+print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110223"
 print "new method: using transients information"
 print "by Nasca Octavian PAUL, Targu Mures, Romania\n"
 parser = OptionParser(usage="usage: %prog [options] input_wav output_wav")
