@@ -15,6 +15,11 @@ import scipy.io.wavfile
 import wave
 from optparse import OptionParser
 
+plot_transients=False
+if plot_transients:
+    import matplotlib.pyplot as plt
+
+
 def load_wav(filename):
     try:
         wavedata=scipy.io.wavfile.read(filename)
@@ -47,6 +52,10 @@ def optimize_windowsize(n):
     return orig_n
 
 def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfilename):
+
+    if plot_transients:
+        transients=[]
+
     nchannels=smp.shape[0]
 
     outfile=wave.open(outfilename,"wb")
@@ -85,6 +94,10 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
     freqs=zeros((2,half_windowsize+1))
     old_freqs=freqs
 
+    num_bins_scaled_freq=32
+    freqs_scaled=zeros(num_bins_scaled_freq)
+    old_freqs_scaled=freqs_scaled
+
     displace_tick=0.0
     displace_tick_increase=1.0/stretch
     if displace_tick_increase>1.0:
@@ -94,6 +107,8 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
     while True:
         if get_next_buf:
             old_freqs=freqs
+            old_freqs_scaled=freqs_scaled
+
             #get the windowed buffer
             istart_pos=int(floor(start_pos))
             buf=smp[:,istart_pos:istart_pos+windowsize]
@@ -103,10 +118,26 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
     
             #get the amplitudes of the frequency components and discard the phases
             freqs=abs(fft.rfft(buf))
-            m=mean(freqs-old_freqs)/(mean(abs(old_freqs))+1e-6)
-            if m<0:
+
+            #scale down the spectrum to detect transients
+            freqs_len=freqs.shape[1]
+            if num_bins_scaled_freq<freqs_len:
+                freqs_len_div=freqs_len//num_bins_scaled_freq
+                new_freqs_len=freqs_len_div*num_bins_scaled_freq
+                freqs_scaled=mean(mean(freqs,0)[:new_freqs_len].reshape([num_bins_scaled_freq,freqs_len_div]),1)
+            else:
+                freqs_scaled=zeros(num_bins_scaled_freq)
+
+
+
+            #process transients
+            m=2.0*mean(freqs_scaled-old_freqs_scaled)/(mean(abs(old_freqs_scaled))+1e-3)
+            if m<0.0:
                 m=0.0
-            m=sqrt(m)
+            if m>1.0:
+                m=1.0
+            if plot_transients:
+                transients.append(m)
             if m>transient_level:
                 displace_tick=1.0
                 extra_transient_time_credit+=1.0
@@ -162,9 +193,12 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
             displace_tick=displace_tick % 1.0
             get_next_buf=True
 
-
-
     outfile.close()
+    
+    if plot_transients:
+        plt.plot(transients)
+        plt.show()
+    
 
 ########################################
 print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110222"
