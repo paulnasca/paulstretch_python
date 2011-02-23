@@ -89,6 +89,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
     displace_tick_increase=1.0/stretch
     if displace_tick_increase>1.0:
         displace_tick_increase=1.0
+    extra_transient_time_credit=0.0
     get_next_buf=True
     while True:
         if get_next_buf:
@@ -108,6 +109,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
             m=sqrt(m)
             if m>transient_level:
                 displace_tick=1.0
+                extra_transient_time_credit+=1.0
 
         cfreqs=(freqs*displace_tick)+(old_freqs*(1.0-displace_tick))
 
@@ -146,7 +148,16 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
         print "%d %% \r" % int(100.0*start_pos/nsamples),
         sys.stdout.flush()
 
-        displace_tick+=displace_tick_increase
+        
+        if extra_transient_time_credit<=0.0:
+            displace_tick+=displace_tick_increase
+        else:
+            credit_get=0.5*displace_tick_increase #this must be less than displace_tick_increase
+            extra_transient_time_credit-=credit_get
+            if extra_transient_time_credit<0:
+                extra_transient_time_credit=0
+            displace_tick+=displace_tick_increase-credit_get
+
         if displace_tick>=1.0:
             displace_tick=displace_tick % 1.0
             get_next_buf=True
