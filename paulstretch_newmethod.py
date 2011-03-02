@@ -15,8 +15,8 @@ import scipy.io.wavfile
 import wave
 from optparse import OptionParser
 
-plot_transients=False
-if plot_transients:
+plot_onsets=False
+if plot_onsets:
     import matplotlib.pyplot as plt
 
 
@@ -51,10 +51,10 @@ def optimize_windowsize(n):
         orig_n+=1
     return orig_n
 
-def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfilename):
+def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilename):
 
-    if plot_transients:
-        transients=[]
+    if plot_onsets:
+        onsets=[]
 
     nchannels=smp.shape[0]
 
@@ -102,7 +102,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
     displace_tick_increase=1.0/stretch
     if displace_tick_increase>1.0:
         displace_tick_increase=1.0
-    extra_transient_time_credit=0.0
+    extra_onset_time_credit=0.0
     get_next_buf=True
     while True:
         if get_next_buf:
@@ -119,7 +119,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
             #get the amplitudes of the frequency components and discard the phases
             freqs=abs(fft.rfft(buf))
 
-            #scale down the spectrum to detect transients
+            #scale down the spectrum to detect onsets
             freqs_len=freqs.shape[1]
             if num_bins_scaled_freq<freqs_len:
                 freqs_len_div=freqs_len//num_bins_scaled_freq
@@ -129,17 +129,17 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
                 freqs_scaled=zeros(num_bins_scaled_freq)
 
 
-            #process transients
+            #process onsets
             m=2.0*mean(freqs_scaled-old_freqs_scaled)/(mean(abs(old_freqs_scaled))+1e-3)
             if m<0.0:
                 m=0.0
             if m>1.0:
                 m=1.0
-            if plot_transients:
-                transients.append(m)
-            if m>transient_level:
+            if plot_onsets:
+                onsets.append(m)
+            if m>onset_level:
                 displace_tick=1.0
-                extra_transient_time_credit+=1.0
+                extra_onset_time_credit+=1.0
 
         cfreqs=(freqs*displace_tick)+(old_freqs*(1.0-displace_tick))
 
@@ -179,13 +179,13 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
         sys.stdout.flush()
 
         
-        if extra_transient_time_credit<=0.0:
+        if extra_onset_time_credit<=0.0:
             displace_tick+=displace_tick_increase
         else:
             credit_get=0.5*displace_tick_increase #this must be less than displace_tick_increase
-            extra_transient_time_credit-=credit_get
-            if extra_transient_time_credit<0:
-                extra_transient_time_credit=0
+            extra_onset_time_credit-=credit_get
+            if extra_onset_time_credit<0:
+                extra_onset_time_credit=0
             displace_tick+=displace_tick_increase-credit_get
 
         if displace_tick>=1.0:
@@ -194,19 +194,19 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,transient_level,outfil
 
     outfile.close()
     
-    if plot_transients:
-        plt.plot(transients)
+    if plot_onsets:
+        plt.plot(onsets)
         plt.show()
     
 
 ########################################
 print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110223"
-print "new method: using transients information"
+print "new method: using onsets information"
 print "by Nasca Octavian PAUL, Targu Mures, Romania\n"
 parser = OptionParser(usage="usage: %prog [options] input_wav output_wav")
 parser.add_option("-s", "--stretch", dest="stretch",help="stretch amount (1.0 = no stretch)",type="float",default=8.0)
 parser.add_option("-w", "--window_size", dest="window_size",help="window size (seconds)",type="float",default=0.25)
-parser.add_option("-t", "--transient", dest="transient",help="transient sensitivity (0.0=max,1.0=min)",type="float",default=10.0)
+parser.add_option("-t", "--onset", dest="onset",help="onset sensitivity (0.0=max,1.0=min)",type="float",default=10.0)
 (options, args) = parser.parse_args()
 
 
@@ -216,10 +216,10 @@ if (len(args)<2) or (options.stretch<=0.0) or (options.window_size<=0.001):
 
 print "stretch amount =",options.stretch
 print "window size =",options.window_size,"seconds"
-print "transient sensitivity =",options.transient
+print "onset sensitivity =",options.onset
 (samplerate,smp)=load_wav(args[0])
 
-paulstretch(samplerate,smp,options.stretch,options.window_size,options.transient,args[1])
+paulstretch(samplerate,smp,options.stretch,options.window_size,options.onset,args[1])
 
 
 
