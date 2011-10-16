@@ -75,12 +75,13 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
     start_pos=0.0
     displace_pos=(windowsize*0.5)/stretch
 
-    #create Hann window
-    window=0.5-cos(arange(windowsize,dtype='float')*2.0*pi/(windowsize-1))*0.5
+    #create Window window
+#    window=0.5-cos(arange(windowsize,dtype='float')*2.0*pi/(windowsize-1))*0.5
+    window=pow(1.0-pow(linspace(-1.0,1.0,windowsize),2.0),1.25)
 
     old_windowed_buf=zeros((2,windowsize))
-    hinv_sqrt2=(1+sqrt(0.5))*0.5
-    hinv_buf=2.0*(hinv_sqrt2-(1.0-hinv_sqrt2)*cos(arange(half_windowsize,dtype='float')*2.0*pi/half_windowsize))/hinv_sqrt2
+#    hinv_sqrt2=(1+sqrt(0.5))*0.5
+#    hinv_buf=2.0*(hinv_sqrt2-(1.0-hinv_sqrt2)*cos(arange(half_windowsize,dtype='float')*2.0*pi/half_windowsize))/hinv_sqrt2
 
     while True:
         #get the windowed buffer
@@ -108,7 +109,8 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
         old_windowed_buf=buf
 
         #remove the resulted amplitude modulation
-        output*=hinv_buf
+        #update: there is no need to the new windowing function
+        #output*=hinv_buf
         
         #clamp the values to -1..1 
         output[output>1.0]=1.0
