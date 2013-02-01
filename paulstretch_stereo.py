@@ -21,8 +21,8 @@ def load_wav(filename):
         samplerate=int(wavedata[0])
         smp=wavedata[1]*(1.0/32768.0)
         smp=smp.transpose()
-        if len(smp.shape)==1: #convert to stereo
-            smp=tile(smp,(2,1))
+        if len(smp.shape)==1: #convert to 2D-array
+            smp=array([smp])
         return (samplerate,smp)
     except:
         print "Error loading wav: "+filename
@@ -79,7 +79,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
 #    window=0.5-cos(arange(windowsize,dtype='float')*2.0*pi/(windowsize-1))*0.5
     window=pow(1.0-pow(linspace(-1.0,1.0,windowsize),2.0),1.25)
 
-    old_windowed_buf=zeros((2,windowsize))
+    old_windowed_buf=zeros((nchannels,windowsize))
 #    hinv_sqrt2=(1+sqrt(0.5))*0.5
 #    hinv_buf=2.0*(hinv_sqrt2-(1.0-hinv_sqrt2)*cos(arange(half_windowsize,dtype='float')*2.0*pi/half_windowsize))/hinv_sqrt2
 
@@ -88,7 +88,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
         istart_pos=int(floor(start_pos))
         buf=smp[:,istart_pos:istart_pos+windowsize]
         if buf.shape[1]<windowsize:
-            buf=append(buf,zeros((2,windowsize-buf.shape[1])),1)
+            buf=append(buf,zeros((nchannels,windowsize-buf.shape[1])),1)
         buf=buf*window
     
         #get the amplitudes of the frequency components and discard the phases
@@ -146,6 +146,5 @@ print "window size =",options.window_size,"seconds"
 (samplerate,smp)=load_wav(args[0])
 
 paulstretch(samplerate,smp,options.stretch,options.window_size,args[1])
-
 
 
