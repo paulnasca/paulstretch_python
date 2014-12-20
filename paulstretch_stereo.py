@@ -28,7 +28,7 @@ def load_wav(filename):
             smp=tile(smp,(2,1))
         return (samplerate,smp)
     except:
-        print "Error loading wav: "+filename
+        print ("Error loading wav: "+filename)
         return None
 
 
@@ -124,16 +124,16 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
 
         start_pos+=displace_pos
         if start_pos>=nsamples:
-            print "100 %"
+            print ("100 %")
             break
-        print "%d %% \r" % int(100.0*start_pos/nsamples),
+        sys.stdout.write ("%d %% \r" % int(100.0*start_pos/nsamples))
         sys.stdout.flush()
 
     outfile.close()
 
 ########################################
-print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110222"
-print "by Nasca Octavian PAUL, Targu Mures, Romania\n"
+print ("Paul's Extreme Sound Stretch (Paulstretch) - Python version 20141220")
+print ("by Nasca Octavian PAUL, Targu Mures, Romania\n")
 parser = OptionParser(usage="usage: %prog [options] input_wav output_wav")
 parser.add_option("-s", "--stretch", dest="stretch",help="stretch amount (1.0 = no stretch)",type="float",default=8.0)
 parser.add_option("-w", "--window_size", dest="window_size",help="window size (seconds)",type="float",default=0.25)
@@ -141,11 +141,11 @@ parser.add_option("-w", "--window_size", dest="window_size",help="window size (s
 
 
 if (len(args)<2) or (options.stretch<=0.0) or (options.window_size<=0.001):
-    print "Error in command line parameters. Run this program with --help for help."
+    print ("Error in command line parameters. Run this program with --help for help.")
     sys.exit(1)
 
-print "stretch amount =",options.stretch
-print "window size =",options.window_size,"seconds"
+print ("stretch amount = %g" % options.stretch)
+print ("window size = %g seconds" % options.window_size)
 (samplerate,smp)=load_wav(args[0])
 
 paulstretch(samplerate,smp,options.stretch,options.window_size,args[1])

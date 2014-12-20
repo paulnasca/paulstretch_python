@@ -24,7 +24,7 @@ def load_wav(filename):
             smp=(smp[:,0]+smp[:,1])*0.5
         return (samplerate,smp)
     except:
-        print "Error loading wav: "+filename
+        print ("Error loading wav: "+filename)
         return None
 
 
@@ -101,9 +101,9 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
 
         start_pos+=displace_pos
         if start_pos>=len(smp):
-            print "100 %"
+            print ("100 %")
             break
-        print "%d %% \r" % int(100.0*start_pos/len(smp)),
+        sys.stdout.write ("%d %% \r" % int(100.0*start_pos/len(smp)))
         sys.stdout.flush()
 
     outfile.close()
