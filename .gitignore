@@ -1,0 +1,8 @@
+.eggs/
+*.egg
+*.egg-info
+
+*.pyc
+*.pyo
+
+*.log
