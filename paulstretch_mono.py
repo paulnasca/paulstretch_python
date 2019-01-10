@@ -12,12 +12,12 @@
 
 import sys
 from numpy import *
-import scipy.io.wavfile
+import wavfilegit
 import wave
 
 def load_wav(filename):
     try:
-        wavedata=scipy.io.wavfile.read(filename)
+        wavedata=wavfile.read(filename)
         samplerate=int(wavedata[0])
         smp=wavedata[1]*(1.0/32768.0)
         if len(smp.shape)>1: #convert to mono
