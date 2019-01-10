@@ -12,7 +12,7 @@
 
 import sys
 from numpy import *
-import wavfilegit
+import wavfile
 import wave
 
 def load_wav(filename):
