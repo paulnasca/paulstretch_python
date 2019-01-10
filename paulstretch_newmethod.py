@@ -14,7 +14,7 @@
 
 import sys
 from numpy import *
-import scipy.io.wavfile
+import wavfile
 import wave
 from optparse import OptionParser
 
@@ -25,7 +25,7 @@ if plot_onsets:
 
 def load_wav(filename):
     try:
-        wavedata=scipy.io.wavfile.read(filename)
+        wavedata=wavfile.read(filename)
         samplerate=int(wavedata[0])
         smp=wavedata[1]*(1.0/32768.0)
         smp=smp.transpose()

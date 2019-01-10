@@ -14,20 +14,21 @@
 
 import sys
 from numpy import *
-import scipy.io.wavfile
+import wavfile
 import wave
 from optparse import OptionParser
 
 def load_wav(filename):
     try:
-        wavedata=scipy.io.wavfile.read(filename)
+        wavedata=wavfile.read(filename)
         samplerate=int(wavedata[0])
         smp=wavedata[1]*(1.0/32768.0)
         smp=smp.transpose()
         if len(smp.shape)==1: #convert to stereo
             smp=tile(smp,(2,1))
         return (samplerate,smp)
-    except:
+    except(e):
+        print("error: "+e)
         print ("Error loading wav: "+filename)
         return None
 
@@ -146,6 +147,7 @@ if (len(args)<2) or (options.stretch<=0.0) or (options.window_size<=0.001):
 
 print ("stretch amount = %g" % options.stretch)
 print ("window size = %g seconds" % options.window_size)
+print args
 (samplerate,smp)=load_wav(args[0])
 
 paulstretch(samplerate,smp,options.stretch,options.window_size,args[1])
