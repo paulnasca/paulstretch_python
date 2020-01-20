@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Paul's Extreme Sound Stretch (Paulstretch) - Python version
 #
