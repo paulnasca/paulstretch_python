@@ -120,7 +120,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,outfilename):
         output[output<-1.0]=-1.0
 
         #write the output to wav file
-        outfile.writeframes(int16(output.ravel(1)*32767.0).tostring())
+        outfile.writeframes(int16(output.ravel('F')*32767.0).tostring())
 
         start_pos+=displace_pos
         if start_pos>=nsamples:
